@@ -21,15 +21,20 @@ st.title("Share of Search Analysis")
 # User inputs
 queries = st.text_input("Enter search queries, separated by commas", value=", ".join(DEFAULT_QUERIES))
 location = st.text_input("Geographic location", value=GEO)
-date_range = st.text_input("Date range", value=DATE)
-granularity = st.selectbox("Data Granularity", options=["daily", "weekly", "monthly"], index=2)
+date_range = st.text_input("Date range", options=["today 5-y", "today 3-y", "today 1-y"], value=DATE)
+granularity = st.selectbox("Data Granularity", options=["D", "W", "M"], index=2)
 smoothing = st.slider("Smoothing Period", min_value=1, max_value=120, value=SMOOTHING_PERIOD)
 
 def fetch_data(queries, location, date_range, granularity):
-    # Construct the URL for the API request
-    # Replace with your actual API endpoint and parameters
-    url = f"https://api.serpapi.com/search.json?q={queries}&location={location}&date_range={date_range}&granularity={granularity}&api_key={API_KEY}"
-    
+    try:
+        url = f"https://api.serpapi.com/search.json?q={queries}&location={location}&date_range={date_range}&granularity={granularity}&api_key={API_KEY}"
+        response = requests.get(url)
+        response.raise_for_status()  # This will raise an exception for HTTP errors
+        return pd.DataFrame(response.json())
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to fetch data: {e}")
+        return pd.DataFrame()
+        
     # Make the API request
     response = requests.get(url)
     if response.status_and_code == 200:
