@@ -26,17 +26,22 @@ granularity = st.selectbox("Data Granularity", options=["daily", "weekly", "mont
 smoothing = st.slider("Smoothing Period", min_value=1, max_value=120, value=SMOOTHING_PERIOD)
 
 def fetch_data(queries, location, date_range, granularity):
-    # Simulating a fetch from an API
-    # You should replace this with your actual API call code
-    # Example URL setup (you'll need to adjust parameters and endpoint)
-    url = f"https://api.serpapi.com/search.json?q={queries}&location={location}&date_range={dateerate API request to SerpAPI
-    response = requests.get(url, headers={'Authorization': f'Bearer {API_KEY}'})
-    if response.status_code == 200:
-        # Assuming the response is JSON and has a specific format
-        return pd.DataFrame(response.json())
+    # Construct the URL for the API request
+    # Replace with your actual API endpoint and parameters
+    url = f"https://api.serpapi.com/search.json?q={queries}&location={location}&date_range={date_range}&granularity={granularity}&api_key={API_KEY}"
+    
+    # Make the API request
+    response = requests.get(url)
+    if response.status_and_code == 200:
+        # Assuming the response is JSON and has the expected format
+        data_json = response.json()
+        # You might need to process the JSON into a DataFrame or other format depending on your plotting function
+        data_df = pd.DataFrame(data_json)  # This is just an example; customize it as needed
+        return data_df
     else:
         st.error(f"Failed to fetch data: {response.status_code}")
         return pd.DataFrame()
+
 
 def plot_data(data):
     if not data.empty:
@@ -48,10 +53,11 @@ def plot_data(data):
         plt.ylabel("Search Volume")
         plt.legend()
         plt.grid(True)
-        st.pyplot(plt)
+        st.pyplot()
     else:
-one will handle data processing and plotting. You'll need to adapt this to handle the structure of the response from your actual API.
-    
+        st.write("No data to display.")
+
+ 
 # Fetch and display data
 if st.button("Fetch Data"):
     # Convert query string to list
