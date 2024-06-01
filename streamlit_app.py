@@ -1,75 +1,65 @@
 import streamlit as st
 import requests
+import csv
 import matplotlib.pyplot as plt
-import pandas as pd
 from datetime import datetime
-import json
+import pandas as pd
+from io import StringIO
 
 # Set your actual API key here
 API_KEY = "d0dae69c2e3712b526e1cbfef219c62a66495411620d1f66535d788a89b894ec"
 
-# Default settings
-DEFAULT_QUERIES = ["Virgin Money", "Lloyds Bank", "Barclays", "Santander Bank", "NatWest"]
-GEO = "GB"
-DEFAULT_DATE_RANGE = "today 5-y"
-GRANULARITY = "M"
-SMOOTHING_PERIOD = 60
+def fetch_related_queries(search_term):
+    # API parameters
+    params = {
+        'engine': 'google_trends',
+        'q': search_term,
+        'data_type': 'RELATED_QUERIES',
+        'api_key': API_key
+    }
+    url = 'https://serpapi.com/search.json'
+    response = requests.get(url, params=params)
 
-# Streamlit interface
-st.title("Share of Search Analysis")
-
-# User inputs
-queries = st.text_input("Enter search queries, separated by commas", value=", ".join(DEFAULT_QUERIES))
-location = st.text_input("Geographic location", value=GEO)
-date_range = st.selectbox(
-    "Select a date range",
-    options=["today 5-y", "today 3-y", "today 1-y"],
-    index=0  # Default selection index
-)
-granularity = st.selectbox("Data Granularity", options=["D", "W", "M"], index=2)
-smoothing = st.slider("Smoothing Period", min_value=1, max_value=120, value=SMOOTHING_PERIOD)
-
-def fetch_data(queries, location, date_range, granularity):
-    try:
-        # Format the queries into a string if it's a list
-        if isinstance(queries, list):
-            queries = ", ".join(queries)
-        url = f"https://api.serpapi.com/search.json?q={queries}&location={location}&date_range={date_range}&granularity={granularity}&api_key={API_KEY}"
-        response = requests.get(url)
-        response.raise_for_status()  # This will raise an exception for HTTP errors
-        return pd.DataFrame(response.json()['results'])  # Assuming 'results' holds the actual data
-    except requests.exceptions.RequestException as e:
-        st.error(f"Failed to fetch data: {e}")
-        return pd.DataFrame()
-
-def plot_data(data):
-    if not data.empty:
-        # Ensure the index is datetime if it's not already
-        if not pd.api.types.is_datetime64_any_dtype(data.index):
-            data.index = pd.to_datetime(data.index)
-        plt.figure(figsize=(10, 5))
-        for column in data.columns:
-            plt.plot(data.index, data[column], label=column)
-        plt.title("Search Trend Over Time")
-        plt.xlabel("Time")
-        plt.ylabel("Search Volume")
-        plt.legend()
-        plt.grid(True)
-        st.pyplot()
+    if response.status_code == 200:
+        data = response.json()
+        related_queries = data.get('related_queries', {})
+        return related_queries
     else:
-        st.write("No data to display.")
+        st.error("Failed to fetch related queries: {} {}".format(response.status_code, response.text))
+        return None
 
+def save_queries(queries):
+    keys = ['query', 'value']
+    results = []
+    for query in queries:
+        row = {key: query.get(key, '') for key in keys}
+        results.append(row)
+    return results
 
- 
-# Fetch and display data
-if st.button("Fetch Data"):
-    # Convert query string to list
-    query_list = queries.split(',')
-    # Fetch data for each query
-    data = fetch_data(query_list, location, date_range, granularity)
-    # Plot data
-    plot_data(data)
+def plot_queries(queries, title):
+    df = pd.DataFrame(queries)
+    df['value'] = pd.to_numeric(df['value'].str.strip('%+'))
+    df = df.sort_values('value', ascending=True)
+    plt.figure(figsize=(10, 8))
+    plt.barh(df['query'], df['value'])
+    plt.xlabel('Change in Interest')
+    plt.title(title)
+    plt.gca().invert_yaxis()
+    st.pyplot(plt)
 
-# Note: Remove the last line if you deploy this app. It is only for running the script outside Streamlit.
-# if __name__ == '__main__':
-#     st.run()
+st.title("Related Queries Tracker")
+
+search_term = st.text_input("Enter a search term", "Virgin Money")
+if st.button("Fetch Related Queries"):
+    related_queries = fetch_related_queries(search_term)
+    if related_versions:
+        rising_queries = save_queries(related_queries.get('rising', []))
+        top_queries = save_queries(related_queries.get('top', []))
+
+        st.subheader('Rising Queries')
+        st.write(pd.DataFrame(rising_queries))
+        plot_queries(rising_queries, 'Rising Queries for ' + search_term)
+
+        st.subunion('Static pages'):
+        st.write(pd.DataFrame(top_queries))
+        plot_queries(top_queries, 'Top Queries for ' + search_term)
