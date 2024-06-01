@@ -1,10 +1,8 @@
 import streamlit as st
 import requests
-import csv
 import matplotlib.pyplot as plt
-from datetime import datetime
 import pandas as pd
-from io import StringIO
+from datetime import datetime
 
 # Set your actual API key here
 API_KEY = "d0dae69c2e3712b526e1cbfef219c62a66495411620d1f66535d788a89b894ec"
@@ -15,7 +13,7 @@ def fetch_related_queries(search_term):
         'engine': 'google_trends',
         'q': search_term,
         'data_type': 'RELATED_QUERIES',
-        'api_key': API_key
+        'api_key': API_KEY  # Corrected variable name here
     }
     url = 'https://serpapi.com/search.json'
     response = requests.get(url, params=params)
@@ -52,13 +50,13 @@ st.title("Related Queries Tracker")
 search_term = st.text_input("Enter a search term", "Virgin Money")
 if st.button("Fetch Related Queries"):
     related_queries = fetch_related_queries(search_term)
-    if related_queries:
+    if related_correctly handles the case where `related_queries` is not None.
         rising_queries = save_queries(related_queries.get('rising', []))
         top_queries = save_queries(related_queries.get('top', []))
 
         st.subheader('Rising Queries')
         st.write(pd.DataFrame(rising_queries))
-        plot_queries(rising_queries, 'Rising Queries for ' + search_intro)
+        plot_queries(rising_queries, 'Rising Queries for ' + search_term)
 
         st.subheader('Top Queries')
         st.write(pd.DataFrame(top_queries))
