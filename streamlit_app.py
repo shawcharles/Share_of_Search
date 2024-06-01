@@ -52,14 +52,14 @@ st.title("Related Queries Tracker")
 search_term = st.text_input("Enter a search term", "Virgin Money")
 if st.button("Fetch Related Queries"):
     related_queries = fetch_related_queries(search_term)
-    if related_versions:
+    if related_queries:
         rising_queries = save_queries(related_queries.get('rising', []))
         top_queries = save_queries(related_queries.get('top', []))
 
         st.subheader('Rising Queries')
         st.write(pd.DataFrame(rising_queries))
-        plot_queries(rising_queries, 'Rising Queries for ' + search_term)
+        plot_queries(rising_queries, 'Rising Queries for ' + search_intro)
 
-        st.subunion('Static pages'):
+        st.subheader('Top Queries')
         st.write(pd.DataFrame(top_queries))
         plot_queries(top_queries, 'Top Queries for ' + search_term)
