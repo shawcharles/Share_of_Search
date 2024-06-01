@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 
 # Set your actual API key here
-API_KEY = "d0dae69c2e3712b526e1cbfef219c62a66495411620d1f66535d788a89b894ec"
+API_KEY = "bf3976c03caab6ea9b6c9627549552adf16e334d124a267405cc120cba926043"
 
 def fetch_related_queries(search_term):
     # API parameters
