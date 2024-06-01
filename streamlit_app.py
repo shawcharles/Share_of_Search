@@ -50,9 +50,9 @@ st.title("Related Queries Tracker")
 search_term = st.text_input("Enter a search term", "Virgin Money")
 if st.button("Fetch Related Queries"):
     related_queries = fetch_related_queries(search_term)
-    if related_correctly handles the case where `related_queries` is not None.
-        rising_queries = save_queries(related_queries.get('rising', []))
-        top_queries = save_queries(related_queries.get('top', []))
+    if related_queries:  # Corrected the syntax here
+        rising_queries = save_queries(related_results.get('rising', []))
+        top_queries = save_queries(related_results.get('top', []))
 
         st.subheader('Rising Queries')
         st.write(pd.DataFrame(rising_queries))
