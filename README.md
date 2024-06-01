@@ -1,5 +1,3 @@
-![Share of Search Tool Banner](https://github.com/Msix-DS/utils/blob/main/images/banner(6).jpg)
-
 # Share of Search Tool
 
 ## Description
@@ -78,9 +76,3 @@ Check the generated plots and CSV files for insights into the search trends of y
 
 ## Contributing
 Contributions are welcome! If you have suggestions for improving this tool, please feel free to make a pull request or open an issue.
-
-## Authors
-Charles Shaw charles.shaw@tandpgroup.com
-
-## Copyright Notice
-This tool is the proprietary and confidential property of T&P𝑚. Unauthorized copying, distribution, modification, or use in any manner is strictly prohibited without express permission from T&P𝑚.
